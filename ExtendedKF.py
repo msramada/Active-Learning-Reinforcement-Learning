@@ -2,14 +2,22 @@ import numpy as np
 import torch
 
 class Model:
-    def __init__(self, stateDynamics, measurementDynamics, stateDynamics_prime, measurementDynamics_prime, Q, R):
-        self.f = stateDynamics
-        self.fprime = stateDynamics_prime
+    def __init__(self, stateDynamics, measurementDynamics, Q, R):
+        self.f = stateDynamics   
         self.g = measurementDynamics
-        self.gprime = measurementDynamics_prime
         self.Q = torch.atleast_2d(Q)
-        self.R = torch.atleast_2d(R)  
-    
+        self.R = torch.atleast_2d(R)
+        # We follow control theory notation for compactness: f is the stateDynamics function, g is the measurementDynamics function
+        def f_Jacobian(x, u):
+            f_x, _ = torch.autograd.functional.jacobian(self.f, inputs=(x, u))
+            return torch.atleast_2d(f_x.squeeze())
+        def g_Jacobian(x):
+            g_x = torch.autograd.functional.jacobian(self.g, inputs=x)
+            return torch.atleast_2d(g_x.squeeze())
+
+        self.fprime = f_Jacobian
+        self.gprime = g_Jacobian
+        
     def TrueTraj(self, x0, u):
         x1 = self.f(x0, u) + torch.sqrt(self.Q)@torch.randn(self.Q.shape[0])
         y1 = self.g(x0) + torch.sqrt(self.R)@torch.randn(self.R.shape[0])

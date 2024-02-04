@@ -14,10 +14,11 @@ class DDPGagent:
         self.actor_learning_rate = actor_learning_rate
         self.tau = tau
         # Networks
-        self.actor = Actor(self.num_states, hidden_size, self.num_actions)
-        self.critic = Critic(self.num_states + self.num_actions, hidden_size, 1)
-        self.critic_target = Critic(self.num_states + self.num_actions, hidden_size, 1)
-        self.actor_target = Actor(self.num_states, hidden_size, self.num_actions)
+        self.num_info_state = round((rx ** 2 + rx)/2) + rx
+        self.actor = Actor(self.num_info_state, hidden_size, self.num_actions)
+        self.critic = Critic(self.num_info_state + self.num_actions, hidden_size, 1)
+        self.critic_target = Critic(self.num_info_state + self.num_actions, hidden_size, 1)
+        self.actor_target = Actor(self.num_info_state, hidden_size, self.num_actions)
 
         for target_param, param in zip(self.actor_target.parameters(), self.actor.parameters()):
             target_param.data.copy_(param.data)
