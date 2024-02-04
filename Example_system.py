@@ -12,14 +12,13 @@ ry = 1
 # Noise covariance, according to Anderson & Moore Optimal Filtering
 Q = torch.diag(torch.tensor([0.2, 0.2, 0.2]))
 R = torch.tensor([[0.1]])
-
+A = torch.tensor([[0.92, 0.7, -0.4],[0, 0.95, -0.1],[0, 0, 0.93]])
+B = torch.tensor([[0],[0],[1.0]])
 
 def stateDynamics(x,u):
     x = torch.atleast_1d(x.squeeze())
     u = torch.atleast_1d(u.squeeze())
     f = torch.zeros(rx,)
-    A = torch.tensor([[0.92, 0.7, -0.4],[0, 0.95, -0.1],[0, 0, 0.93]])
-    B = torch.tensor([[0],[0],[1.0]])
     f = A @ x + B @ u
     return torch.atleast_2d(f.squeeze()).T
 
