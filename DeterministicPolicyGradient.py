@@ -5,7 +5,7 @@ from ActorCritic import *
 from utils import *
 
 class DDPGagent:
-    def __init__(self, rx , ru, device, hidden_size=12, actor_learning_rate=1e-4, critic_learning_rate=1e-4, gamma=0.95, max_memory_size=640, tau=1e-2):
+    def __init__(self, rx , ru, device, hidden_size=12, actor_learning_rate=1e-4, critic_learning_rate=1e-4, gamma=0.95, max_memory_size=640, tau=1e-1):
         # Params
         self.num_states = rx
         self.num_actions = ru
@@ -27,16 +27,16 @@ class DDPGagent:
             target_param.data.copy_(param.data)
 
         self.device = device
-        self.actor.device = device
-        self.critic.device = device
-        self.actor_target.device = device
-        self.critic_target.device = device
+        self.critic.to(device)
+        self.actor.to(device)
+        self.critic_target.to(device)
+        self.actor_target.to(device)
         self.critic.eval()
         self.actor.eval()
         self.critic_target.eval()
         self.actor_target.eval()
         # Training
-        self.memory = ReplayMemory(max_memory_size) 
+        self.memory = ReplayMemory(max_memory_size)
         self.critic_criterion  = nn.MSELoss()      
         self.actor_optimizer  = optim.Adam(self.actor.parameters(), lr=self.actor_learning_rate)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.critic_learning_rate)
